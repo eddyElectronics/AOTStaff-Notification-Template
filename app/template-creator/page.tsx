@@ -17,7 +17,13 @@ interface Tag {
 
 export default function TemplateCreator() {
   const router = useRouter();
-  const [tags, setTags] = useState<Tag[]>([]);
+  const [tags, setTags] = useState<Tag[]>(() => {
+    if (typeof window !== 'undefined') {
+      const savedTags = localStorage.getItem('templateTags');
+      return savedTags ? JSON.parse(savedTags) : [];
+    }
+    return [];
+  });
   const [newTagColumn, setNewTagColumn] = useState('');
 
   const editor = useEditor({
@@ -70,6 +76,11 @@ export default function TemplateCreator() {
       };
     }
   }, [editor]);
+
+  // Save tags to localStorage when changed
+  useEffect(() => {
+    localStorage.setItem('templateTags', JSON.stringify(tags));
+  }, [tags]);
 
   const addTag = () => {
     if (newTagColumn) {
