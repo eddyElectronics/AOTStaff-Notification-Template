@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
       app_url,
       messages: [
         {
-          type: 'text',
+          type: 'html',
           text: message,
           originalContentUrl: null,
           previewImageUrl: null,
