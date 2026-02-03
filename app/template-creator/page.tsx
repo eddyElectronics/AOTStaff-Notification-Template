@@ -81,18 +81,9 @@ export default function TemplateCreator() {
   const goToUpload = () => {
     if (!editor) return;
     
-    const htmlContent = editor.getHTML();
-    
-    // Check if at least one tag exists in editor content
-    const hasTagInEditor = tags.some(tag => htmlContent.includes(`{{${tag.name}}}`));
-    if (!hasTagInEditor) {
-      alert('กรุณาแทรก Tag อย่างน้อย 1 รายการลงใน Content');
-      return;
-    }
-    
     // Save template content and tags to localStorage
     const templateData = {
-      htmlContent: htmlContent,
+      htmlContent: editor.getHTML(),
       tags: tags,
     };
     localStorage.setItem('templateData', JSON.stringify(templateData));

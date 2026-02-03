@@ -221,17 +221,8 @@ function FileUploadContent() {
       html = html.replace(tagPattern, String(value));
     });
 
-    // Strip HTML tags for text message
-    const textMessage = html
-      .replace(/<[^>]*>/g, '')
-      .replace(/&nbsp;/g, ' ')
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .trim();
-
-    return textMessage;
+    // Return HTML directly (API accepts HTML format)
+    return html;
   };
 
   // Send notifications to all recipients
