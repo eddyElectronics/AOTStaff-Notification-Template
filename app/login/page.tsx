@@ -35,12 +35,6 @@ export default function LoginPage() {
             </svg>
             เข้าสู่ระบบด้วย Microsoft
           </button>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-zinc-500">
-              ใช้บัญชี AOT Organization เพื่อเข้าสู่ระบบ
-            </p>
-          </div>
         </div>
 
         {/* Footer */}
