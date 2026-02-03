@@ -98,16 +98,6 @@ export default function TemplateCreator() {
     }
   };
 
-  const removeTag = (tagName: string) => {
-    setTags(tags.filter(tag => tag.name !== tagName));
-  };
-
-  const insertTag = (tagName: string) => {
-    if (editor) {
-      editor.chain().focus().insertContent(`{{${tagName}}}`).run();
-    }
-  };
-
   const goToUpload = () => {
     if (!editor) return;
     
@@ -153,7 +143,7 @@ export default function TemplateCreator() {
                 Content
               </label>
               <p className="text-xs text-zinc-500 mb-2">
-                กำหนด tag ให้อยู่ภายใต้เครื่องหมาย {`{{ชื่อ tag}}`} (ตามตัวอย่าง)
+                 click ในช่อง Editor เพื่อกำหนดตำแหน่งข้อความที่ตรงกับ Column ของไฟล์ Excel
               </p>
               
               {/* Toolbar */}
@@ -280,49 +270,9 @@ export default function TemplateCreator() {
                   disabled={!newTagColumn}
                   className="w-full minimal-btn py-3 px-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  เพิ่ม Tag
+                  แทรกลงใน Editor
                 </button>
               </div>
-            </div>
-
-            {/* Tags List */}
-            <div className="minimal-card rounded-xl p-6">
-              <h3 className="text-lg font-medium text-zinc-900 mb-4">Tags ที่สร้างไว้</h3>
-              {tags.length === 0 ? (
-                <p className="text-zinc-500 text-sm">ยังไม่มี tags</p>
-              ) : (
-                <div className="space-y-2">
-                  {tags.map((tag) => (
-                    <div
-                      key={tag.name}
-                      className="border border-zinc-200 rounded-lg p-3 hover:bg-zinc-50 transition-colors"
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex-1">
-                          <code className="text-sm font-mono bg-zinc-100 text-zinc-700 px-2 py-1 rounded">
-                            {`{{${tag.name}}}`}
-                          </code>
-                          <p className="text-xs text-zinc-500 mt-1">
-                            Column: <span className="font-medium">{tag.column}</span>
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => removeTag(tag.name)}
-                          className="text-zinc-400 hover:text-zinc-600 text-sm font-medium"
-                        >
-                          ลบ
-                        </button>
-                      </div>
-                      <button
-                        onClick={() => insertTag(tag.name)}
-                        className="w-full bg-zinc-100 text-zinc-700 py-2 px-3 rounded-lg text-sm hover:bg-zinc-200 transition-all font-medium"
-                      >
-                        แทรกใน Editor
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
         </div>
