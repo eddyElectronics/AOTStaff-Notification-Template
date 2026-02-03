@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navigation from "./components/Navigation";
+import { AuthProvider } from "./components/AuthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Notification System",
-  description: "ระบบส่ง notification แบบ template",
+  title: "AOTStaff Notification Push",
+  description: "ระบบส่ง notification แบบ template สำหรับ AOTStaff",
 };
 
 export default function RootLayout({
@@ -28,8 +28,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navigation />
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

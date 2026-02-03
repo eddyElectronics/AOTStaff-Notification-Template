@@ -48,10 +48,16 @@ export async function callAirportProcedure<T = unknown>(
     }),
   });
 
+  const text = await response.text();
+  
   if (!response.ok) {
-    const text = await response.text();
     throw new Error(text || 'Procedure request failed');
   }
 
-  return response.json();
+  try {
+    return JSON.parse(text);
+  } catch {
+    console.error('Failed to parse procedure response:', text);
+    return { data: undefined, error: 'Invalid JSON response' };
+  }
 }

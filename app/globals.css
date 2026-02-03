@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafafa;
+  --foreground: #18181b;
+  --primary: #18181b;
+  --primary-light: #3f3f46;
+  --accent: #a1a1aa;
+  --border: #e4e4e7;
 }
 
 @theme inline {
@@ -14,13 +18,74 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #09090b;
+    --foreground: #fafafa;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Minimal theme styles */
+.minimal-bg {
+  background: #fafafa;
+}
+
+.minimal-card {
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  transition: all 0.2s ease;
+}
+
+.minimal-card:hover {
+  border-color: #a1a1aa;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Button styles */
+.minimal-btn {
+  background: #18181b;
+  color: #ffffff;
+  font-weight: 500;
+  padding: 12px 24px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.minimal-btn:hover {
+  background: #3f3f46;
+}
+
+.minimal-btn-outline {
+  background: transparent;
+  color: #18181b;
+  border: 1px solid #e4e4e7;
+}
+
+.minimal-btn-outline:hover {
+  background: #f4f4f5;
+  border-color: #a1a1aa;
+}
+
+/* Input styles */
+.minimal-input {
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  padding: 12px 16px;
+  transition: all 0.2s ease;
+  background: #ffffff;
+}
+
+.minimal-input:focus {
+  border-color: #18181b;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(24, 24, 27, 0.1);
+}
+
+/* Text styles */
+.text-muted {
+  color: #71717a;
 }

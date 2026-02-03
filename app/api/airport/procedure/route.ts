@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const API_URL = process.env.AIRPORT_API_URL_PROCEDURE;
 
+// Get allowlist from environment variable
+const PROCEDURE_ALLOWLIST = (process.env.PROCEDURE_ALLOWLIST || '')
+  .split(',')
+  .map(p => p.trim())
+  .filter(Boolean);
+
 export async function POST(request: NextRequest) {
   try {
     const apiKey = process.env.AIRPORT_API_KEY;
@@ -13,6 +19,22 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+
+    // Check if procedure is in allowlist
+    const procedureName = body.procedure;
+    if (PROCEDURE_ALLOWLIST.length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Procedure rejected: PROCEDURE_ALLOWLIST is empty (safety policy).' },
+        { status: 403 }
+      );
+    }
+    
+    if (!PROCEDURE_ALLOWLIST.includes(procedureName)) {
+      return NextResponse.json(
+        { success: false, error: `Procedure "${procedureName}" is not in the allowlist.` },
+        { status: 403 }
+      );
+    }
 
     console.log('[airport/procedure] request:', body);
 
