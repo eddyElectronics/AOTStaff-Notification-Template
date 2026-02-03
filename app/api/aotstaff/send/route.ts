@@ -36,14 +36,7 @@ export async function POST(request: NextRequest) {
       title: title || 'แจ้งเตือน',
       source,
       app_url,
-      messages: [
-        {
-          type: 'html',
-          text: message,
-          originalContentUrl: null,
-          previewImageUrl: null,
-        },
-      ],
+      messages: message,
     };
 
     console.log('Sending AOTStaff notification:', JSON.stringify(payload, null, 2));
