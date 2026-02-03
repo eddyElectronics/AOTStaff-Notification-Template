@@ -81,9 +81,18 @@ export default function TemplateCreator() {
   const goToUpload = () => {
     if (!editor) return;
     
+    const htmlContent = editor.getHTML();
+    
+    // Check if at least one tag exists in editor content
+    const hasTagInEditor = tags.some(tag => htmlContent.includes(`{{${tag.name}}}`));
+    if (!hasTagInEditor) {
+      alert('กรุณาแทรก Tag อย่างน้อย 1 รายการลงใน Content');
+      return;
+    }
+    
     // Save template content and tags to localStorage
     const templateData = {
-      htmlContent: editor.getHTML(),
+      htmlContent: htmlContent,
       tags: tags,
     };
     localStorage.setItem('templateData', JSON.stringify(templateData));
@@ -237,7 +246,7 @@ export default function TemplateCreator() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-zinc-600 mb-2">
-                    Column (1-10)
+                    Column (1-10)  ในไฟล์ Excel
                   </label>
                   <select
                     value={newTagColumn}
