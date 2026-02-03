@@ -29,12 +29,20 @@ export default function TemplateCreator() {
       Image,
     ],
     content: `<p>ขอส่ง User name และ Password เข้าระบบ SAP ให้ผู้ประเมิน Competency Appraisal ประจำปีงบประมาณ 2569</p>
+<p></p>
 <p>ท่านสามารถเข้าประเมินได้วันที่ 2-20 ก.พ.69</p>
-<p><br></p>
-<p><strong>ชื่อผู้ใช้ของท่าน</strong> : {{username}}</p>
-<p><strong>รหัสผ่าน</strong> : {{password}}</p>
-<p><br></p>
-<p><strong>หมายเหตุ</strong> ท่านต้องเข้าไปเปลี่ยน Password ก่อนวันที่ 16 ก.พ.69 ไม่เช่นนั้น Password ของท่านจะหมดอายุ</p>`,
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p>ชื่อผู้ใช้ของท่าน : </p>
+<p></p>
+<p>รหัสผ่าน : </p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p>หมายเหตุ ท่านต้องเข้าไปเปลี่ยน Password ก่อนวันที่ 16 ก.พ.69 ไม่เช่นนั้น Password ของท่านจะหมดอายุ</p>`,
     editorProps: {
       attributes: {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[350px] p-4',
@@ -48,6 +56,10 @@ export default function TemplateCreator() {
       const tagExists = tags.some(tag => tag.name === newTagName);
       if (!tagExists) {
         setTags([...tags, { name: newTagName, column: newTagColumn }]);
+        // Insert tag into editor
+        if (editor) {
+          editor.chain().focus().insertContent(`{{${newTagName}}}`).run();
+        }
         setNewTagName('');
         setNewTagColumn('');
       } else {
