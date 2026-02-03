@@ -39,6 +39,7 @@ function FileUploadContent() {
   const [templateHtml, setTemplateHtml] = useState<string>('');
   const [templateTags, setTemplateTags] = useState<TemplateTag[]>([]);
   const [usernameColumn, setUsernameColumn] = useState<string>('');
+  const [hasSent, setHasSent] = useState(false);
 
   useEffect(() => {
     // Load template from localStorage
@@ -166,6 +167,8 @@ function FileUploadContent() {
     setData(parsedData);
     const preview = parsedData.slice(0, 10);
     setPreviewData(preview);
+    setHasSent(false);
+    setSendResult(null);
   };
 
   const clearData = () => {
@@ -413,9 +416,11 @@ function FileUploadContent() {
 
       // Set result to display in UI
       setSendResult({ success: successCount, fail: failCount, items });
+      setHasSent(true);
     } catch (error) {
       console.error('Error sending notifications:', error);
       setSendResult({ success: 0, fail: data.length, items: [{ row: 0, username: '-', status: 'error', message: 'เกิดข้อผิดพลาดในการส่ง Notification' }] });
+      setHasSent(true);
     } finally {
       setSending(false);
       setSendProgress({ current: 0, total: 0 });
@@ -612,7 +617,7 @@ function FileUploadContent() {
             <button
               type="button"
               onClick={sendNotifications}
-              disabled={sending || !usernameColumn}
+              disabled={sending || !usernameColumn || hasSent}
               className="w-full minimal-btn py-4 px-6 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all flex items-center justify-center gap-2 text-lg"
             >
               {sending ? (
