@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -18,7 +18,6 @@ interface Tag {
 export default function TemplateCreator() {
   const router = useRouter();
   const [tags, setTags] = useState<Tag[]>([]);
-  const [newTagName, setNewTagName] = useState('');
   const [newTagColumn, setNewTagColumn] = useState('');
 
   const editor = useEditor({
@@ -51,19 +50,39 @@ export default function TemplateCreator() {
     immediatelyRender: false,
   });
 
+  // Load editor content from localStorage on mount
+  useEffect(() => {
+    const savedContent = localStorage.getItem('editorContent');
+    if (savedContent && editor) {
+      editor.commands.setContent(savedContent);
+    }
+  }, [editor]);
+
+  // Save editor content to localStorage on change
+  useEffect(() => {
+    if (editor) {
+      const handleUpdate = () => {
+        localStorage.setItem('editorContent', editor.getHTML());
+      };
+      editor.on('update', handleUpdate);
+      return () => {
+        editor.off('update', handleUpdate);
+      };
+    }
+  }, [editor]);
+
   const addTag = () => {
-    if (newTagName && newTagColumn) {
-      const tagExists = tags.some(tag => tag.name === newTagName);
+    if (newTagColumn) {
+      const tagExists = tags.some(tag => tag.column === newTagColumn);
       if (!tagExists) {
-        setTags([...tags, { name: newTagName, column: newTagColumn }]);
+        setTags([...tags, { name: newTagColumn, column: newTagColumn }]);
         // Insert tag into editor
         if (editor) {
-          editor.chain().focus().insertContent(`{{${newTagName}}}`).run();
+          editor.chain().focus().insertContent(`{{${newTagColumn}}}`).run();
         }
-        setNewTagName('');
         setNewTagColumn('');
       } else {
-        alert('Tag name already exists!');
+        alert('Column นี้ถูกเพิ่มไปแล้ว!');
       }
     }
   };
@@ -225,19 +244,7 @@ export default function TemplateCreator() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-zinc-600 mb-2">
-                    Tag Name (ไม่ต้องมีเครื่องหมายปีกกา)
-                  </label>
-                  <input
-                    type="text"
-                    value={newTagName}
-                    onChange={(e) => setNewTagName(e.target.value)}
-                    className="w-full minimal-input text-zinc-900 placeholder:text-zinc-400"
-                    placeholder="เช่น: username"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-zinc-600 mb-2">
-                    Column (1-10)  ในไฟล์ Excel
+                    Column (1-10) ในไฟล์ Excel
                   </label>
                   <select
                     value={newTagColumn}
@@ -259,7 +266,7 @@ export default function TemplateCreator() {
                 </div>
                 <button
                   onClick={addTag}
-                  disabled={!newTagName || !newTagColumn}
+                  disabled={!newTagColumn}
                   className="w-full minimal-btn py-3 px-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   เพิ่ม Tag
