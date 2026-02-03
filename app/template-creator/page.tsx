@@ -84,17 +84,16 @@ export default function TemplateCreator() {
 
   const addTag = () => {
     if (newTagColumn) {
+      // Add tag to list if not exists
       const tagExists = tags.some(tag => tag.column === newTagColumn);
       if (!tagExists) {
         setTags([...tags, { name: newTagColumn, column: newTagColumn }]);
-        // Insert tag into editor
-        if (editor) {
-          editor.chain().focus().insertContent(`{{${newTagColumn}}}`).run();
-        }
-        setNewTagColumn('');
-      } else {
-        alert('Column นี้ถูกเพิ่มไปแล้ว!');
       }
+      // Always insert tag into editor (allow duplicates)
+      if (editor) {
+        editor.chain().focus().insertContent(`{{${newTagColumn}}}`).run();
+      }
+      setNewTagColumn('');
     }
   };
 
