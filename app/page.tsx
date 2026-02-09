@@ -15,6 +15,25 @@ export default function Home() {
     }
   }, [status, router]);
 
+  // Console log user profile after login
+  useEffect(() => {
+    if (status === 'authenticated' && session) {
+      console.log('=== User Profile from Azure Entra ID ===');
+      console.log('Session:', JSON.stringify(session, null, 2));
+      console.log('User Name:', session.user?.name);
+      console.log('User Email:', session.user?.email);
+      console.log('Employee ID:', session.user?.employeeId);
+      console.log('Is Authorized:', session.isAuthorized);
+      console.log('=========================================');
+
+      // Check authorization
+      if (session.isAuthorized === false) {
+        alert('คุณไม่มีสิทธิ์ใช้งานระบบนี้ กรุณาติดต่อผู้ดูแลระบบ');
+        signOut({ callbackUrl: '/login' });
+      }
+    }
+  }, [status, session]);
+
   if (status === 'loading') {
     return (
       <div className="min-h-screen minimal-bg flex items-center justify-center">

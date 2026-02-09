@@ -7,7 +7,7 @@ import StarterKit from '@tiptap/starter-kit';
 import { Color } from '@tiptap/extension-color';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Image } from '@tiptap/extension-image';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import './tiptap.css';
 
 interface Tag {
@@ -17,6 +17,7 @@ interface Tag {
 
 export default function TemplateCreator() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [tags, setTags] = useState<Tag[]>(() => {
     if (typeof window !== 'undefined') {
       const savedTags = localStorage.getItem('templateTags');
@@ -25,6 +26,14 @@ export default function TemplateCreator() {
     return [];
   });
   const [newTagColumn, setNewTagColumn] = useState('');
+
+  // Check authorization
+  useEffect(() => {
+    if (status === 'authenticated' && session?.isAuthorized === false) {
+      alert('ไม่มีสิทธิ์เข้าใช้งานระบบ\n\nกรุณาติดต่อผู้ดูแลระบบเพื่อขอสิทธิ์การเข้าถึง');
+      signOut({ callbackUrl: '/login' });
+    }
+  }, [status, session]);
 
   const editor = useEditor({
     extensions: [

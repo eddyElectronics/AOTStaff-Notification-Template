@@ -22,7 +22,7 @@ interface LocalTemplateData {
 }
 
 function FileUploadContent() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [fileName, setFileName] = useState('');
   const [data, setData] = useState<DataRow[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
@@ -40,6 +40,14 @@ function FileUploadContent() {
   const [templateTags, setTemplateTags] = useState<TemplateTag[]>([]);
   const [usernameColumn, setUsernameColumn] = useState<string>('');
   const [hasSent, setHasSent] = useState(false);
+
+  // Check authorization
+  useEffect(() => {
+    if (status === 'authenticated' && session?.isAuthorized === false) {
+      alert('ไม่มีสิทธิ์เข้าใช้งานระบบ\n\nกรุณาติดต่อผู้ดูแลระบบเพื่อขอสิทธิ์การเข้าถึง');
+      signOut({ callbackUrl: '/login' });
+    }
+  }, [status, session]);
 
   useEffect(() => {
     // Load template from localStorage
