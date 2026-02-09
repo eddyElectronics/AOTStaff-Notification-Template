@@ -266,8 +266,12 @@ function FileUploadContent() {
           CreatedBy: session?.user?.email || session?.user?.name || 'Unknown'
         });
         
-        // Extract JobId from response
-        if (jobResult.data) {
+        // Check if there's an error in the response
+        if (jobResult.error) {
+          console.error('Error creating notification job:', jobResult.error);
+          // Continue without database logging
+        } else if (jobResult.data) {
+          // Extract JobId from response
           if (Array.isArray(jobResult.data) && jobResult.data.length > 0) {
             jobId = (jobResult.data[0] as Record<string, unknown>).JobId as number || 
                     (jobResult.data[0] as Record<string, unknown>).jobId as number || 
@@ -277,8 +281,8 @@ function FileUploadContent() {
                     (jobResult.data as Record<string, unknown>).jobId as number || 
                     (jobResult.data as Record<string, unknown>).JOBID as number;
           }
+          console.log('Created notification job:', jobId);
         }
-        console.log('Created notification job:', jobId);
       } catch (error) {
         console.error('Error creating notification job:', error);
         // Continue without database logging if it fails
