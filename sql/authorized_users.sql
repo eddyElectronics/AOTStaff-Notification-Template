@@ -12,10 +12,11 @@ BEGIN
 END
 GO
 
--- Create new table with EmployeeId
+-- Create new table with EmployeeId and IsAdmin
 CREATE TABLE dbo.AuthorizedUsers (
   Id              INT IDENTITY(1,1) PRIMARY KEY,
   EmployeeId      NVARCHAR(50) NOT NULL UNIQUE,
+  IsAdmin         BIT NOT NULL DEFAULT(0),
   IsActive        BIT NOT NULL DEFAULT(1),
   CreatedAt       DATETIME2 NOT NULL DEFAULT(SYSDATETIME()),
   UpdatedAt       DATETIME2 NULL
@@ -43,6 +44,7 @@ BEGIN
   SELECT 
     Id,
     EmployeeId,
+    IsAdmin,
     IsActive,
     CASE WHEN IsActive = 1 THEN 1 ELSE 0 END AS IsAuthorized
   FROM dbo.AuthorizedUsers
@@ -59,7 +61,8 @@ IF OBJECT_ID(N'dbo.sp_AddAuthorizedUser', N'P') IS NOT NULL
 GO
 
 CREATE PROCEDURE dbo.sp_AddAuthorizedUser
-  @EmployeeId NVARCHAR(50)
+  @EmployeeId NVARCHAR(50),
+  @IsAdmin BIT = 0
 AS
 BEGIN
   SET NOCOUNT ON;
@@ -69,14 +72,15 @@ BEGIN
     -- Update existing user
     UPDATE dbo.AuthorizedUsers
     SET IsActive = 1,
+        IsAdmin = @IsAdmin,
         UpdatedAt = SYSDATETIME()
     WHERE EmployeeId = @EmployeeId;
   END
   ELSE
   BEGIN
     -- Insert new user
-    INSERT INTO dbo.AuthorizedUsers (EmployeeId)
-    VALUES (@EmployeeId);
+    INSERT INTO dbo.AuthorizedUsers (EmployeeId, IsAdmin)
+    VALUES (@EmployeeId, @IsAdmin);
   END
 
   SELECT 'Success' AS Result, @EmployeeId AS EmployeeId;
@@ -107,10 +111,59 @@ END
 GO
 
 -- =============================================
+-- Stored Procedure: sp_GetAllAuthorizedUsers
+-- ดึงรายชื่อผู้ใช้งานทั้งหมด
+-- =============================================
+IF OBJECT_ID(N'dbo.sp_GetAllAuthorizedUsers', N'P') IS NOT NULL
+  DROP PROCEDURE dbo.sp_GetAllAuthorizedUsers;
+GO
+
+CREATE PROCEDURE dbo.sp_GetAllAuthorizedUsers
+AS
+BEGIN
+  SET NOCOUNT ON;
+
+  SELECT 
+    Id,
+    EmployeeId,
+    IsAdmin,
+    IsActive,
+    CreatedAt,
+    UpdatedAt
+  FROM dbo.AuthorizedUsers
+  ORDER BY CreatedAt DESC;
+END
+GO
+
+-- =============================================
+-- Stored Procedure: sp_UpdateUserAdmin
+-- อัปเดตสถานะ Admin
+-- =============================================
+IF OBJECT_ID(N'dbo.sp_UpdateUserAdmin', N'P') IS NOT NULL
+  DROP PROCEDURE dbo.sp_UpdateUserAdmin;
+GO
+
+CREATE PROCEDURE dbo.sp_UpdateUserAdmin
+  @EmployeeId NVARCHAR(50),
+  @IsAdmin BIT
+AS
+BEGIN
+  SET NOCOUNT ON;
+
+  UPDATE dbo.AuthorizedUsers
+  SET IsAdmin = @IsAdmin,
+      UpdatedAt = SYSDATETIME()
+  WHERE EmployeeId = @EmployeeId;
+
+  SELECT 'Success' AS Result, @EmployeeId AS EmployeeId;
+END
+GO
+
+-- =============================================
 -- Sample Data (ตัวอย่างข้อมูล)
 -- =============================================
-INSERT INTO dbo.AuthorizedUsers (EmployeeId)
-VALUES ('484074');
+INSERT INTO dbo.AuthorizedUsers (EmployeeId, IsAdmin)
+VALUES ('484074', 1);
 GO
 
 -- ตรวจสอบข้อมูล

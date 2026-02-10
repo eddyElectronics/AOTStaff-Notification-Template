@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import Link from 'next/link';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { signOut, useSession } from 'next-auth/react';
 import { callAirportProcedure } from '../lib/airportApi';
+import Header from '@/app/components/Header';
 
 interface DataRow {
   [key: string]: string | number;
@@ -431,28 +431,13 @@ function FileUploadContent() {
   };
 
   return (
-    <div className="min-h-screen minimal-bg p-8">
+    <div className="min-h-screen minimal-bg p-8 text-black">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/template-creator"
-              className="inline-flex items-center justify-center gap-2 minimal-btn-outline py-2 px-4 rounded-lg font-medium transition-all"
-            >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
-              </svg>
-              ย้อนกลับ
-            </Link>
-            <h1 className="text-2xl font-semibold text-zinc-900">Upload ไฟล์ข้อมูล</h1>
-          </div>
-          <button
-            onClick={() => signOut({ callbackUrl: '/login' })}
-            className="text-sm text-zinc-500 hover:text-zinc-700 transition-colors"
-          >
-            ออกจากระบบ
-          </button>
-        </div>
+        <Header 
+          title="Upload ไฟล์ข้อมูล" 
+          backUrl="/template-creator" 
+          backLabel="ย้อนกลับ" 
+        />
 
         {/* Template Info Section */}
         {templateHtml && (

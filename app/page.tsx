@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -24,6 +25,7 @@ export default function Home() {
       console.log('User Email:', session.user?.email);
       console.log('Employee ID:', session.user?.employeeId);
       console.log('Is Authorized:', session.isAuthorized);
+      console.log('Is Admin:', session.isAdmin);
       console.log('=========================================');
 
       // Check authorization
@@ -55,10 +57,20 @@ export default function Home() {
         {/* User Info */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-zinc-200 rounded-full flex items-center justify-center">
-              <span className="text-zinc-600 font-medium">
-                {session.user?.name?.charAt(0).toUpperCase() || 'U'}
-              </span>
+            <div className="w-10 h-10 bg-zinc-200 rounded-full flex items-center justify-center overflow-hidden">
+              {session.user?.image ? (
+                <Image
+                  src={session.user.image}
+                  alt="Profile"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-zinc-600 font-medium">
+                  {session.user?.name?.charAt(0).toUpperCase() || 'U'}
+                </span>
+              )}
             </div>
             <div>
               <p className="text-sm font-medium text-zinc-900">{session.user?.name}</p>
@@ -85,7 +97,7 @@ export default function Home() {
 
         {/* Template Creator Card */}
         <Link href="/template-creator">
-          <div className="minimal-card rounded-xl p-6 cursor-pointer group">
+          <div className="minimal-card rounded-xl p-6 cursor-pointer group mb-4">
             <div className="flex items-center gap-4">
               <div className="bg-zinc-100 p-3 rounded-lg">
                 <svg className="w-6 h-6 text-zinc-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -104,6 +116,30 @@ export default function Home() {
             </div>
           </div>
         </Link>
+
+        {/* Admin: User Management Card */}
+        {session.isAdmin && (
+          <Link href="/admin/users">
+            <div className="minimal-card rounded-xl p-6 cursor-pointer group border-2 border-amber-200 bg-amber-50">
+              <div className="flex items-center gap-4">
+                <div className="bg-amber-100 p-3 rounded-lg">
+                  <svg className="w-6 h-6 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-lg font-medium text-zinc-900">
+                    จัดการผู้ใช้งาน
+                  </h2>
+                  <p className="text-sm text-zinc-500">เพิ่ม/ลบ ผู้ใช้งานและกำหนดสิทธิ์ Admin</p>
+                </div>
+                <svg className="w-5 h-5 text-zinc-400 group-hover:text-zinc-600 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </Link>
+        )}
       </div>
     </div>
   );

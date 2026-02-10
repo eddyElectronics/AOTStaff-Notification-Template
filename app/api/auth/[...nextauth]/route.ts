@@ -7,8 +7,9 @@ const AIRPORT_DATABASE = process.env.NEXT_PUBLIC_AIRPORT_DATABASE || 'Notificati
 const PROC_CHECK_AUTH = process.env.PROC_CHECK_AUTHORIZED_USER || 'sp_CheckAuthorizedUser';
 
 // Function to get employee ID from Microsoft Graph API
-async function getEmployeeIdFromGraph(accessToken: string): Promise<string | null> {
+async function getEmployeeDataFromGraph(accessToken: string): Promise<{ employeeId: string | null }> {
   try {
+    // Get user profile
     const response = await fetch('https://graph.microsoft.com/v1.0/me?$select=employeeId,onPremisesSamAccountName,mailNickname', {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -17,25 +18,26 @@ async function getEmployeeIdFromGraph(accessToken: string): Promise<string | nul
 
     if (!response.ok) {
       console.error('Graph API error:', response.status);
-      return null;
+      return { employeeId: null };
     }
 
     const data = await response.json();
     console.log('Microsoft Graph user data:', JSON.stringify(data, null, 2));
     
-    // Return employeeId or fallback to onPremisesSamAccountName
-    return data.employeeId || data.onPremisesSamAccountName || data.mailNickname || null;
+    const employeeId = data.employeeId || data.onPremisesSamAccountName || data.mailNickname || null;
+
+    return { employeeId };
   } catch (error) {
     console.error('Error fetching from Graph API:', error);
-    return null;
+    return { employeeId: null };
   }
 }
 
-// Function to check if user is authorized
-async function checkUserAuthorization(employeeId: string): Promise<boolean> {
+// Function to check if user is authorized and is admin
+async function checkUserAuthorization(employeeId: string): Promise<{ isAuthorized: boolean; isAdmin: boolean }> {
   if (!AIRPORT_API_URL || !AIRPORT_API_KEY) {
     console.warn('Airport API not configured, skipping authorization check');
-    return true; // Allow if API not configured
+    return { isAuthorized: true, isAdmin: false }; // Allow if API not configured
   }
 
   try {
@@ -56,7 +58,7 @@ async function checkUserAuthorization(employeeId: string): Promise<boolean> {
 
     if (!response.ok) {
       console.error('Authorization check failed:', response.status);
-      return false;
+      return { isAuthorized: false, isAdmin: false };
     }
 
     const data = await response.json();
@@ -66,15 +68,19 @@ async function checkUserAuthorization(employeeId: string): Promise<boolean> {
     // Check if user is found and authorized - API returns { success, data: [...] }
     const resultData = data.data || data;
     if (resultData && Array.isArray(resultData) && resultData.length > 0) {
-      console.log('IsAuthorized value:', resultData[0].IsAuthorized, 'type:', typeof resultData[0].IsAuthorized);
-      return resultData[0].IsAuthorized === 1 || resultData[0].IsAuthorized === true;
+      const user = resultData[0];
+      console.log('IsAuthorized value:', user.IsAuthorized, 'IsAdmin:', user.IsAdmin);
+      return {
+        isAuthorized: user.IsAuthorized === 1 || user.IsAuthorized === true,
+        isAdmin: user.IsAdmin === 1 || user.IsAdmin === true,
+      };
     }
     
     console.log('No data returned from authorization check');
-    return false;
+    return { isAuthorized: false, isAdmin: false };
   } catch (error) {
     console.error('Error checking authorization:', error);
-    return false;
+    return { isAuthorized: false, isAdmin: false };
   }
 }
 
@@ -97,19 +103,23 @@ const handler = NextAuth({
         token.accessToken = account.access_token;
         token.idToken = account.id_token;
         
-        // Get employeeId from Microsoft Graph API
+        // Get employeeId from Microsoft Graph API (photo removed to avoid HTTP 431)
         if (account.access_token) {
-          const graphEmployeeId = await getEmployeeIdFromGraph(account.access_token);
-          if (graphEmployeeId) {
-            token.employeeId = graphEmployeeId;
-            console.log('EmployeeId from Graph API:', graphEmployeeId);
+          const { employeeId } = await getEmployeeDataFromGraph(account.access_token);
+          if (employeeId) {
+            token.employeeId = employeeId;
+            // Note: photo removed from JWT to prevent cookie size overflow
+            console.log('EmployeeId from Graph API:', employeeId);
             
             // Check authorization against database
-            token.isAuthorized = await checkUserAuthorization(graphEmployeeId);
-            console.log('Authorization result for', graphEmployeeId, ':', token.isAuthorized);
+            const authResult = await checkUserAuthorization(employeeId);
+            token.isAuthorized = authResult.isAuthorized;
+            token.isAdmin = authResult.isAdmin;
+            console.log('Authorization result for', employeeId, ':', authResult);
           } else {
             console.log('No employeeId found from Graph API');
             token.isAuthorized = false;
+            token.isAdmin = false;
           }
         }
       }
@@ -122,7 +132,9 @@ const handler = NextAuth({
     async session({ session, token }) {
       session.accessToken = token.accessToken as string;
       session.user.employeeId = token.employeeId as string;
+      // Photo removed from session to prevent HTTP 431 error
       session.isAuthorized = token.isAuthorized as boolean;
+      session.isAdmin = token.isAdmin as boolean;
       return session;
     },
   },

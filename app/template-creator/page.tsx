@@ -8,6 +8,7 @@ import { Color } from '@tiptap/extension-color';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Image } from '@tiptap/extension-image';
 import { signOut, useSession } from 'next-auth/react';
+import Header from '@/app/components/Header';
 import './tiptap.css';
 
 interface Tag {
@@ -119,28 +120,13 @@ export default function TemplateCreator() {
   };
 
   return (
-    <div className="min-h-screen minimal-bg p-8">
+    <div className="min-h-screen minimal-bg p-8 text-black">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.push('/')}
-              className="inline-flex items-center justify-center gap-2 minimal-btn-outline py-2 px-4 rounded-lg font-medium transition-all"
-            >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
-              </svg>
-              ย้อนกลับ
-            </button>
-            <h1 className="text-2xl font-semibold text-zinc-900">สร้าง Template</h1>
-          </div>
-          <button
-            onClick={() => signOut({ callbackUrl: '/login' })}
-            className="text-sm text-zinc-500 hover:text-zinc-700 transition-colors"
-          >
-            ออกจากระบบ
-          </button>
-        </div>
+        <Header 
+          title="สร้าง Template" 
+          backUrl="/" 
+          backLabel="หน้าหลัก" 
+        />
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Editor Section */}

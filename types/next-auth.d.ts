@@ -10,6 +10,7 @@ declare module "next-auth" {
       employeeId?: string | null;
     };
     isAuthorized?: boolean;
+    isAdmin?: boolean;
   }
 
   interface Profile {
@@ -29,5 +30,6 @@ declare module "next-auth/jwt" {
     idToken?: string;
     employeeId?: string;
     isAuthorized?: boolean;
+    isAdmin?: boolean;
   }
 }
